@@ -5,12 +5,35 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export default async function Page() {
   const period = currentPeriod();
-  const [active, disc, overdue, stats] = await Promise.all([
-    prisma.client.count({ where: { status: "ACTIVE" } }),
-    prisma.client.count({ where: { status: "DISCONNECTED" } }),
-    prisma.invoice.count({ where: { period, status: "OVERDUE" } }),
-    monthStats(period).catch(() => ({ billed: 0, collected: 0, expenses: 0, net: 0 }))
-  ]);
+  let data: { active: number; disc: number; overdue: number; stats: { billed: number; collected: number; expenses: number; net: number } } | null = null;
+  let dbError: string | null = null;
+  try {
+    const [active, disc, overdue, stats] = await Promise.all([
+      prisma.client.count({ where: { status: "ACTIVE" } }),
+      prisma.client.count({ where: { status: "DISCONNECTED" } }),
+      prisma.invoice.count({ where: { period, status: "OVERDUE" } }),
+      monthStats(period)
+    ]);
+    data = { active, disc, overdue, stats };
+  } catch (e: any) {
+    dbError = String(e?.message ?? e).split("\n")[0];
+  }
+  if (!data) {
+    return (<div>
+      <h1 className="text-xl font-bold mb-3">Dashboard — {period}</h1>
+      <div className="card text-sm">
+        <b>Database not connected.</b>
+        <p className="mt-1">The app cannot reach Postgres. Checklist:</p>
+        <ol className="list-decimal ml-5 mt-1 space-y-1">
+          <li>Vercel → Project → Settings → Environment Variables → <b>DATABASE_URL</b> must be set for <b>Production</b> (your Neon pooled connection string).</li>
+          <li>After adding/changing env vars: Deployments → ⋯ → <b>Redeploy</b> (env changes need a redeploy).</li>
+          <li>Tables must exist: run <b>npx prisma db push</b> once from your computer with the same DATABASE_URL.</li>
+        </ol>
+        <p className="mt-2 text-xs text-slate-500">Technical detail: {dbError ?? "unknown error"}</p>
+      </div>
+    </div>);
+  }
+  const { active, disc, overdue, stats } = data;
   const cards = [
     ["Active clients", active], ["Disconnected", disc], ["Overdue (" + period + ")", overdue],
     ["Billed", "₱" + stats.billed.toLocaleString()], ["Collected", "₱" + stats.collected.toLocaleString()],
