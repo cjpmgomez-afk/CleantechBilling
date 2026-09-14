@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body { @apply bg-slate-50 text-slate-900; }
+.card { @apply bg-white rounded-xl border p-4 shadow-sm; }
+.btn { @apply px-3 py-2 rounded-lg bg-slate-900 text-white text-sm; }
+.input { @apply w-full border rounded-lg px-3 py-2 text-sm; }
+.table { @apply w-full text-sm; }
+.table th { @apply text-left p-2 border-b text-slate-500 font-medium; }
+.table td { @apply p-2 border-b; }
+.badge { @apply text-xs px-2 py-1 rounded-full border; }

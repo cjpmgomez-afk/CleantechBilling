@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ClientStatus {
+  ACTIVE
+  SUSPENDED
+  DISCONNECTED
+  PENDING
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+  VOID
+}
+
+enum PayMethod {
+  CASH
+  GCASH
+  MAYA
+  BANK
+  OTHER
+}
+
+model Plan {
+  id        String   @id @default(cuid())
+  name      String   @unique // e.g. "50Mbps"
+  speedMbps Int?
+  price     Int // pesos
+  clients   Client[]
+  createdAt DateTime @default(now())
+}
+
+model Client {
+  id               String       @id @default(cuid())
+  name             String
+  phone            String? // +639xx, required for SMS
+  email            String?
+  address          String?
+  pppoeProfile     String? // from your sheet: PPPoE Profile
+  speed            String? // from your sheet: Speed
+  planId           String?
+  plan             Plan?        @relation(fields: [planId], references: [id])
+  monthlyFee       Int // from your sheet: Amount
+  installedAt      DateTime?
+  status           ClientStatus @default(ACTIVE)
+  disconnectedAt   DateTime?
+  disconnectReason String?
+  notes            String?
+  invoices         Invoice[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([status])
+  @@index([phone])
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  clientId  String
+  client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  period    String // YYYY-MM, e.g. 2026-09
+  amount    Int
+  dueDate   DateTime
+  status    InvoiceStatus @default(UNPAID)
+  payments  Payment[]
+  notifs    NotificationLog[]
+  createdAt DateTime      @default(now())
+
+  @@unique([clientId, period])
+  @@index([period, status])
+}
+
+model Payment {
+  id         String    @id @default(cuid())
+  invoiceId  String
+  invoice    Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount     Int
+  method     PayMethod @default(CASH)
+  refNo      String?
+  paidAt     DateTime  @default(now())
+  receivedBy String?
+  voided     Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  @@index([paidAt])
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  category  String // Fiber, Salary, Equipment, Rent, Load, Others
+  amount    Int
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  clientId  String
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  channel   String // SMS | EMAIL
+  provider  String // textbee | smsgate | semaphore | resend
+  message   String
+  status    String // SENT | FAILED | SKIPPED
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([invoiceId])
+  @@index([createdAt])
+}
