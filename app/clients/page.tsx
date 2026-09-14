@@ -45,6 +45,7 @@ export default function Clients() {
         <input key={k} className="input" placeholder={k} value={(form as any)[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} />)}
       <button className="btn" onClick={add}>+ Add Customer</button>
       <label className="btn text-center cursor-pointer">Import client.xlsx<input type="file" hidden accept=".xlsx" onChange={e => e.target.files && imp(e.target.files[0])} /></label>
+      <a className="btn text-center" href="/api/clients/export">Export Excel</a>
     </div>
     {editing && (
       <div className="card mb-3 border-blue-400 border">
