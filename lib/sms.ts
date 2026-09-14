@@ -70,3 +70,11 @@ export function billingSMS(name: string, speed: string, amount: number, period: 
   const contact = process.env.ISP_CONTACT ?? "09291199933";
   return `${isp}: Hi ${name}, your bill ₱${amount} for ${period} is due ${due} (end of month). Grace period until the 5th of next month. Pay cash/GCash or call ${contact}. Reply PAID + ref. Thank you!`;
 }
+
+// Sent on the 5th of the month to clients who still haven't paid a past-due bill
+export function disconnectNoticeSMS(name: string, amount: number, period: string): string {
+  const isp = process.env.ISP_NAME ?? "Cleantech ICT Solution Inc";
+  const contact = process.env.ISP_CONTACT ?? "09291199933";
+  const day = process.env.DISCONNECT_DAY ?? "10";
+  return `${isp}: Hi ${name}, your ₱${amount} bill for ${period} is still unpaid. We did not receive any payment (cash/GCash/Maya). Please settle your balance now to avoid disconnection on the ${day}th of the month. Call ${contact}. Thank you!`;
+}
