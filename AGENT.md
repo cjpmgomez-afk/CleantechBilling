@@ -22,8 +22,10 @@ Input cols: `Client Name | PPPoE Profile | Speed | Amount | Date Install` + opti
 - Net sales = SUM payments(paidAt in month, not voided) − SUM expenses(date in month).
 
 ## Tasks agents may do — DONE vs NEXT
-- DONE: PATCH /api/clients/[id] + Disconnect/Activate button in Clients UI; force-dynamic on / and /reports; /api/health diagnostics; monthly reminders (billing 28th, reminders daily w/ 7-day gap dedupe); TextBee test-SMS action in Settings.
+- DONE: PATCH /api/clients/[id] + Disconnect/Activate button in Clients UI; force-dynamic on / and /reports; /api/health diagnostics; monthly reminders (billing 28th, reminders daily w/ 7-day gap dedupe); TextBee test-SMS action in Settings; inline edit all fields in Clients; Clients Export Excel (/api/clients/export); PWA (app/manifest.ts, public/icon-192/512.png, public/sw.js cache-first, NAW overflow-x-auto); Expenses form mobile-stacked; logo in navbar + favicon; SMS/email due date + grace-period wording.
 - NEXT: receipt print view, overdue CSV export, /pay/[token] portal; do NOT add router auto-cut without explicit approval.
+- NOTE: scripts/send-to-client.ts "Name" sends billing SMS to one client by name (needs unpaid invoice).
+- NOTE: PWA manifest at /manifest.webmanifest (auto from app/manifest.ts); icons regenerable via System.Drawing.
 
 ## Verification — PASSED 2026-09-14 (Node v24.19.0, npm 11.17.0)
 `npm install (142 pkgs) + prisma validate OK + tsc --noEmit OK + npm run build OK (17 routes)`. PH normalize tested: 09291199933 → +639291199933.
