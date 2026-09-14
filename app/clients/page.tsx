@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-const empty = { name: "", phone: "", email: "", speed: "", monthlyFee: "", pppoeProfile: "", address: "" };
+const empty = { name: "", phone: "", speed: "", monthlyFee: "", pppoeProfile: "", address: "" };
 export default function Clients() {
   const [rows, setRows] = useState<any[]>([]);
   const [form, setForm] = useState(empty);
@@ -20,7 +20,7 @@ export default function Clients() {
   };
   const startEdit = (c: any) => {
     setEditing(c);
-    setEditForm({ name: c.name ?? "", phone: c.phone ?? "", email: c.email ?? "", speed: c.speed ?? "", monthlyFee: String(c.monthlyFee ?? ""), pppoeProfile: c.pppoeProfile ?? "", address: c.address ?? "" });
+    setEditForm({ name: c.name ?? "", phone: c.phone ?? "", speed: c.speed ?? "", monthlyFee: String(c.monthlyFee ?? ""), pppoeProfile: c.pppoeProfile ?? "", address: c.address ?? "" });
   };
   const saveEdit = async () => {
     if (!editing) return;
@@ -41,7 +41,7 @@ export default function Clients() {
   return (<div>
     <h1 className="text-xl font-bold mb-3">Clients (add anytime)</h1>
     <div className="card mb-3 grid md:grid-cols-4 gap-2">
-      {(["name","phone","email","speed","monthlyFee","pppoeProfile","address"] as const).map(k =>
+      {(["name","phone","speed","monthlyFee","pppoeProfile","address"] as const).map(k =>
         <input key={k} className="input" placeholder={k} value={(form as any)[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} />)}
       <button className="btn" onClick={add}>+ Add Customer</button>
       <label className="btn text-center cursor-pointer">Import client.xlsx<input type="file" hidden accept=".xlsx" onChange={e => e.target.files && imp(e.target.files[0])} /></label>
@@ -50,16 +50,16 @@ export default function Clients() {
       <div className="card mb-3 border-blue-400 border">
         <div className="flex items-center justify-between mb-2"><b className="text-sm">Editing: {editing.name}</b><button className="badge" onClick={() => setEditing(null)}>Cancel</button></div>
         <div className="grid md:grid-cols-4 gap-2">
-          {(["name","phone","email","speed","monthlyFee","pppoeProfile","address"] as const).map(k =>
+          {(["name","phone","speed","monthlyFee","pppoeProfile","address"] as const).map(k =>
             <input key={k} className="input" placeholder={k} value={(editForm as any)[k]} onChange={e => setEditForm({ ...editForm, [k]: e.target.value })} />)}
           <button className="btn" onClick={saveEdit}>Save</button>
         </div>
       </div>
     )}
     <div className="card overflow-auto"><table className="table">
-      <thead><tr><th>Name</th><th>Mobile</th><th>Email</th><th>PPPoE</th><th>Speed</th><th>Fee</th><th>Status</th><th>Action</th></tr></thead>
+      <thead><tr><th>Name</th><th>Mobile</th><th>PPPoE</th><th>Speed</th><th>Fee</th><th>Status</th><th>Action</th></tr></thead>
       <tbody>{rows.map((c: any) => <tr key={c.id}>
-        <td>{c.name}</td><td>{c.phone ?? "—"}</td><td>{c.email ?? "—"}</td><td>{c.pppoeProfile ?? "—"}</td><td>{c.speed ?? "—"}</td><td>₱{c.monthlyFee}</td><td><span className="badge">{c.status}</span></td>
+        <td>{c.name}</td><td>{c.phone ?? "—"}</td><td>{c.pppoeProfile ?? "—"}</td><td>{c.speed ?? "—"}</td><td>₱{c.monthlyFee}</td><td><span className="badge">{c.status}</span></td>
         <td className="whitespace-nowrap"><button className="badge" onClick={() => startEdit(c)}>Edit</button> <button className="badge" onClick={() => toggle(c)}>{c.status === "ACTIVE" ? "Disconnect" : "Activate"}</button> <button className="badge" onClick={() => del(c)}>Delete</button></td>
       </tr>)}</tbody>
     </table></div>
