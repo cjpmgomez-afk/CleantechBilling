@@ -68,5 +68,5 @@ export async function sendSMS(rawTo: string | null | undefined, message: string)
 export function billingSMS(name: string, speed: string, amount: number, period: string, due: string): string {
   const isp = process.env.ISP_NAME ?? "Cleantech ICT Solution Inc";
   const contact = process.env.ISP_CONTACT ?? "09291199933";
-  return `${isp}: Hi ${name}, your bill ₱${amount} for ${period} due ${due}. Pay cash/GCash or call ${contact}. Reply PAID + ref. Thank you!`;
+  return `${isp}: Hi ${name}, your bill ₱${amount} for ${period} is due ${due} (end of month). Grace period until the 5th of next month. Pay cash/GCash or call ${contact}. Reply PAID + ref. Thank you!`;
 }
