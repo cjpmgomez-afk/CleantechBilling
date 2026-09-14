@@ -15,5 +15,5 @@ export async function sendEmail(to: string | null | undefined, subject: string, 
 export function billingHTML(name: string, speed: string, amount: number, period: string, due: string) {
   const isp = process.env.ISP_NAME ?? "Cleantech ICT Solution Inc";
   const contact = process.env.ISP_CONTACT ?? "09291199933";
-  return `<div style="font-family:sans-serif"><h2>${isp} — Billing ${period}</h2><p>Hi ${name},</p><p>Plan <b>${speed}Mbps</b> — Amount due <b>₱${amount}</b><br/>Due date: <b>${due}</b></p><p>Pay via cash / GCash / Maya. Contact ${contact}.</p></div>`;
+  return `<div style="font-family:sans-serif"><h2>${isp} — Billing ${period}</h2><p>Hi ${name},</p><p>Amount due: <b>₱${amount}</b><br/>Due date: <b>${due}</b></p><p>Pay via cash / GCash / Maya. Contact ${contact}.</p></div>`;
 }
