@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendSMS, billingSMS } from "@/lib/sms";
 import { sendEmail, billingHTML } from "@/lib/email";
+import { checkCronAuth } from "@/lib/cron-auth";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 // Daily: send billing SMS+email for UNPAID/OVERDUE of current period. Batch 50/day safe for TextBee free.
 export async function GET(req: Request) {
+  const denied = checkCronAuth(req);
+  if (denied) return denied;
   const { searchParams } = new URL(req.url);
-  if (searchParams.get("secret") !== process.env.CRON_SECRET && process.env.CRON_SECRET)
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const period = searchParams.get("period") ?? `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}`;
   const limit = Number(searchParams.get("limit") ?? 50);
   const invoices = await prisma.invoice.findMany({
