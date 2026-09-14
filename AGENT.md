@@ -7,7 +7,7 @@ End-of-month fixed billing. Manual Cash/GCash/Maya recording. Free-first SMS (Te
 ## Repo map
 - `prisma/schema.prisma`: Client (name, phone, pppoeProfile, speed, monthlyFee, status ACTIVE/SUSPENDED/DISCONNECTED), Plan, Invoice (@@unique clientId+period), Payment, Expense, NotificationLog
 - `lib/`: db.ts, ph.ts (normPH +639, peso, period), sms.ts (textbee→smsgate→semaphore fallback), email.ts (Resend), billing.ts (generateBilling, monthStats), import.ts (client.xlsx mapper)
-- `app/api/`: clients, invoices, payments, expenses, import, cron/billing (28th), cron/reminders (daily, limit=50 for TextBee free)
+- `app/api/`: clients, invoices, payments, expenses, import, health, cron/billing (28th), cron/reminders (daily, limit=50 for TextBee free)
 - `app/`: page (dashboard KPIs + Net), clients (add + import), invoices, payments, expenses, reports (?period=YYYY-MM), settings
 
 ## Sheet contract (client.xlsx)
@@ -16,12 +16,13 @@ Input cols: `Client Name | PPPoE Profile | Speed | Amount | Date Install` + opti
 ## Conventions
 - Money = integer pesos. Period = YYYY-MM. Due = endOfMonth. DISCONNECTED/SUSPENDED skipped in billing.
 - SMS copy via billingSMS() only; never hardcode ISP name/number — use ISP_NAME/ISP_CONTACT env.
-- TextBee free limits: 50/day, 300/mo → cron reminders default limit=50, ordered oldest first.
-- All cron routes require ?secret=CRON_SECRET. Log every send to NotificationLog (SENT/FAILED/SKIPPED).
+- TextBee free limits: 50/day, 300/mo → cron reminders default limit=50, any period (overdue carry-over included).
+- Reminders dedupe: skip invoice if last SENT SMS within REMINDER_GAP_DAYS (default 7). Env REMINDER_GAP_DAYS tunes it.
+- All cron routes accept ?secret=CRON_SECRET OR Vercel `Authorization: Bearer <CRON_SECRET>` (lib/cron-auth). Log every send to NotificationLog (SENT/FAILED/SKIPPED).
 - Net sales = SUM payments(paidAt in month, not voided) − SUM expenses(date in month).
 
 ## Tasks agents may do — DONE vs NEXT
-- DONE: PATCH /api/clients/[id] + Disconnect/Activate button in Clients UI; force-dynamic on / and /reports so `npm run build` passes without DB.
+- DONE: PATCH /api/clients/[id] + Disconnect/Activate button in Clients UI; force-dynamic on / and /reports; /api/health diagnostics; monthly reminders (billing 28th, reminders daily w/ 7-day gap dedupe); TextBee test-SMS action in Settings.
 - NEXT: receipt print view, overdue CSV export, /pay/[token] portal; do NOT add router auto-cut without explicit approval.
 
 ## Verification — PASSED 2026-09-14 (Node v24.19.0, npm 11.17.0)
