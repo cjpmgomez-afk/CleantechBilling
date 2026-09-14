@@ -33,6 +33,11 @@ export default function Clients() {
     alert(`Added ${r.added}, skipped ${r.skipped}. Missing contact: ${r.missingContact?.slice(0,5).join(", ")}`);
     load();
   };
+  const del = async (c: any) => {
+    if (!confirm(`Delete ${c.name} permanently? This removes their invoices, payments and notification history.`) ) return;
+    await fetch(`/api/clients/${c.id}`, { method: "DELETE" });
+    load();
+  };
   return (<div>
     <h1 className="text-xl font-bold mb-3">Clients (add anytime)</h1>
     <div className="card mb-3 grid md:grid-cols-6 gap-2">
@@ -43,7 +48,7 @@ export default function Clients() {
     </div>
     <div className="card overflow-auto"><table className="table">
       <thead><tr><th>Name</th><th>Mobile</th><th>PPPoE</th><th>Speed</th><th>Fee</th><th>Status</th><th>Action</th></tr></thead>
-      <tbody>{rows.map((c: any) => <tr key={c.id}><td>{c.name}</td><td>{c.phone ?? "—"}</td><td>{c.pppoeProfile ?? "—"}</td><td>{c.speed ?? "—"}</td><td>₱{c.monthlyFee}</td><td><span className="badge">{c.status}</span></td><td><button className="badge" onClick={() => edit(c)}>Edit</button> <button className="badge" onClick={() => toggle(c)}>{c.status === "ACTIVE" ? "Disconnect" : "Activate"}</button></td></tr>)}</tbody>
+      <tbody>{rows.map((c: any) => <tr key={c.id}><td>{c.name}</td><td>{c.phone ?? "—"}</td><td>{c.pppoeProfile ?? "—"}</td><td>{c.speed ?? "—"}</td><td>₱{c.monthlyFee}</td><td><span className="badge">{c.status}</span></td><td><button className="badge" onClick={() => edit(c)}>Edit</button> <button className="badge" onClick={() => toggle(c)}>{c.status === "ACTIVE" ? "Disconnect" : "Activate"}</button> <button className="badge" onClick={() => del(c)}>Delete</button></td></tr>)}</tbody>
     </table></div>
     <p className="text-xs text-slate-500 mt-2">Tip: add Mobile (+639xx) to enable free SMS. Disconnected clients are auto-skipped in billing.</p>
   </div>);
