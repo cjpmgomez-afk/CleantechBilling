@@ -16,7 +16,8 @@ export default async function Page() {
     ]);
     data = { active, disc, overdue, stats };
   } catch (e: any) {
-    dbError = String(e?.message ?? e).split("\n")[0];
+    const lines = String(e?.message ?? e).split("\n").map((s) => s.trim()).filter(Boolean);
+    dbError = (lines[0] + " " + (lines[1] ?? "")).trim().slice(0, 300) || "unknown error";
   }
   if (!data) {
     return (<div>
