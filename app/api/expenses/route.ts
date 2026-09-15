@@ -10,3 +10,18 @@ export async function POST(req: Request) {
     amount: Number(b.amount), notes: b.notes || null
   }}));
 }
+export async function PATCH(req: Request) {
+  const b = await req.json();
+  const { id, ...data } = b;
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  if (data.amount !== undefined) data.amount = Number(data.amount);
+  if (data.date) data.date = new Date(data.date);
+  return NextResponse.json(await prisma.expense.update({ where: { id }, data }));
+}
+export async function DELETE(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  await prisma.expense.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}
