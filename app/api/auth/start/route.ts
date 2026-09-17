@@ -17,6 +17,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "wrong password" }, { status: 401 });
   }
   const now = Date.now();
+  // Password-only mode (OTP temporarily disabled via OTP_ENABLED=false):
+  // issue both cookies straight away, no SMS.
+  if (process.env.OTP_ENABLED === "false") {
+    const res = NextResponse.json({ ok: true, step: "logged-in" });
+    res.cookies.set(SESSION_COOKIE, await signToken("session", now, secret), { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: SESSION_HOURS * 3600 });
+    res.cookies.set(STEPUP_COOKIE, await signToken("stepup", now, secret), { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: STEPUP_HOURS * 3600 });
+    return res;
+  }
   const stepUp = await verifyToken(req.cookies.get(STEPUP_COOKIE)?.value ?? "", "stepup", STEPUP_HOURS, secret);
   if (stepUp) {
     const res = NextResponse.json({ ok: true, step: "logged-in" });
