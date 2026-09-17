@@ -119,3 +119,15 @@ model NotificationLog {
   @@index([invoiceId])
   @@index([createdAt])
 }
+
+model OtpRequest {
+  id         String    @id @default(cuid())
+  phone      String // normalized +639xx (admin number)
+  codeHash   String // SHA-256 hex, never plaintext
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, createdAt])
+}
